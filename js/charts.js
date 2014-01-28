@@ -264,7 +264,7 @@ var TWCAdvancedChart = {
 
 			var areaGradient = that.svg.append("svg:defs")
 				.append("svg:linearGradient")
-				.attr("id", "areaGradient")
+				.attr("id", "areaGradient-" + idx)
 				.attr("x1", "0%")
 				.attr("y1", "0%")
 				.attr("x2", "0%")
@@ -282,7 +282,7 @@ var TWCAdvancedChart = {
 
 			that.container.append("svg:path")
 				.attr("fill", serie.color)
-				.style("fill", "url(#areaGradient)")
+				.style("fill", "url(#areaGradient-" + idx + ")")
 				.attr("transform", "translate(" + that.margin.left + "," + that.margin.top + ")")
 				.attr("d", serie.area(serie.values));
 		});
@@ -317,7 +317,7 @@ var TWCAdvancedChart = {
 		$.each(this.shownData, function (i, serie) {
 			$('<span>').css('color', serie.color).html('&#9679;').appendTo(metrics);
 			$('<span>').text(' ' + serie.key).appendTo(metrics);
-			metrics.append(' ' + number_format(serie.values[idx].y));
+			metrics.append(' ' + serie.values[idx].y);
 
 			var metricDiff = null;
 			if (typeof serie.values[idx-1] != 'undefined') {
@@ -337,11 +337,6 @@ var TWCAdvancedChart = {
 				$('<span>').html(metricDiff.html()).appendTo(metrics);
 			}
 			metrics.append('<br>');
-
-			if ( i == 0 && that.chartOptions.events.click ) {
-				metrics.append($('<span>').text(that.chartOptions.events.click.message))
-					.append('<br>');
-			}
 		});
 		return metrics;
 	},
@@ -369,7 +364,7 @@ var TWCAdvancedChart = {
 			return;
 		}
 
-		var date = moment(this.shownData[0].values[idx].date, 'YYYY-MM-DD');
+		var date = moment(this.shownData[0].values[idx].x);
 		var dateStr = {'day': date.format('ddd'), 'date': date.format('MMM D'), 'year': date.format('YYYY')};
 		date = $('<div>').attr('class', 'date')
 			.text(dateStr.day + ', ' + dateStr.date + ' ')
@@ -618,13 +613,15 @@ var TWCAdvancedChart = {
 $(document).ready(function(){
 	var svgChart = TWCAdvancedChart;
 
+	var $chart = $('#chart');
+
 	svgChart.init({
-		chartType: 'line',
-		data: this.cachedData,
-		parent: this.svgContainer,
-		boxSize: this.getBoxSize(),
-		tooltip: this.tooltip,
-		chartOptions: this.chartOptions
+		chartType: view.chartData.type,
+		data: view.chartData.series,
+		parent: $chart,
+		boxSize: {'width': 700, 'height': 300},
+		tooltip: $chart.find('.tooltip'),
+		chartOptions: view.chartData.options
 	});
 });
 
